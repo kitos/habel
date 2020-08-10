@@ -14,11 +14,14 @@ instance Functor Parser where
 instance Applicative Parser where
     pure x = Parser (\s -> Right (0, s, x))
 
-    p1 <*> p2 = p1 >>= \f -> p2 >>= \x -> pure $ f x
+    p1 <*> p2 = do
+        f <- p1
+        x <- p2
+        return (f x)
 
 instance Monad Parser where
-    p1 >>= f = Parser(\s0 ->
-        case runParser p1 s0 of
+    pa >>= f = Parser(\s0 ->
+        case runParser pa s0 of
             Left e -> Left e
             Right (!n0, s1, a) -> case runParser (f a) s1 of
                 Left (!n1, msg) -> Left (n0 + n1, msg)
