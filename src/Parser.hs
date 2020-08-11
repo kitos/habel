@@ -1,6 +1,8 @@
 {-# LANGUAGE BangPatterns #-}
 module Parser where
 
+import Control.Applicative
+
 type ParserResult x = Either (Integer, String) (Integer, String, x)
 
 data Parser x = Parser (String -> ParserResult x)
@@ -18,6 +20,13 @@ instance Applicative Parser where
         f <- p1
         x <- p2
         return (f x)
+
+instance Alternative Parser where
+    empty = Parser (const (Left (0, "empty")))
+
+    pa <|> pb = Parser (\s0 -> case runParser pa s0 of
+        Right r -> Right r
+        Left _ -> runParser pb s0)
 
 instance Monad Parser where
     pa >>= f = Parser(\s0 ->

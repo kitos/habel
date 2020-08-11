@@ -1,28 +1,38 @@
+{-# LANGUAGE LambdaCase, MultiWayIf #-}
 module Lib where
 
+import Control.Applicative
 import Parser
+import Core
 
 data Identifier = Identifier String
+    deriving (Show)
 
-data Args = Args [Identifier]
+data FunctionDef = FunctionDef Identifier [Identifier] -- [Expr]
+    deriving (Show)
 
-data Expr
-    = FunctionDef Identifier Args [Expr]
-    | FunctionCall Identifier [Expr]
+data Expr = FunctionCall Identifier [Expr]
+    deriving (Show)
 
--- parse1 :: (Char -> Bool) -> Parser Char
+validIdStartChars = "_" ++ ['a'..'z'] ++ ['A'..'Z']
+validIdChars = validIdStartChars ++ ['0'..'9']
 
-expect1 :: Char -> Parser Char
-expect1 c = Parser(\s -> case s of
-    []     -> Left (0, "Expected 1 character :-(")
-    (x:xs) -> case x == c of
-        True  -> Right (0, xs, c)
-        False -> Left (1, "Expected " ++ [c] ++ ", got " ++ [x] ++ " :-("))
+parseIdStart = parse1 (\c -> case c `elem` validIdStartChars of
+    True  -> Right c
+    False -> Left "Expected identifier to start with '_' or 'a'..'z' :(")
 
+parseIdTail = parse1 (\c -> case c `elem` validIdChars of
+    True  -> Right c
+    False -> Left ("Using " <> show c <> " in identifier is not allowed"))
 
+parseId :: Parser Identifier
+parseId = (\s0 s -> Identifier (s0:s)) <$> parseIdStart <*> (many parseIdTail)
 
-expect :: String -> Parser String
-expect = sequence . fmap expect1
-
--- parseIdentifier :: Parser Identifier
--- parseIdentifier = 
+parseFunctionDef :: Parser FunctionDef
+parseFunctionDef = expect "function" >>
+    expect1 ' ' >>
+    parseId >>= \n ->
+    inParens (separatedBy ',' parseId) >>= \args ->
+    expect1 ' ' >>
+    inCurlyBrackets (expect1 ' ') >>
+    return (FunctionDef n args)
