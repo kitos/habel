@@ -2,6 +2,7 @@
 module Core where
 
 import Control.Applicative
+import Data.Foldable
 import Parser
 
 parse1 :: (Char -> Either String x) -> Parser x
@@ -19,14 +20,26 @@ expect1 x = parse1 (\c -> if
 expect :: String -> Parser String
 expect = sequence . fmap expect1
 
-wrapedIn :: (Char, Char) -> Parser x -> Parser x
-wrapedIn (o, c) pa = expect1 o >> pa >>= \x -> expect1 c >> return x
+wrappedIn :: (Parser a, Parser b) -> Parser x -> Parser x
+wrappedIn (pre, post) pa = pre >> pa >>= \x -> post >> return x
 
-inParens = wrapedIn ('(', ')')
+wrappedInChar :: (Char, Char) -> Parser x -> Parser x
+wrappedInChar (pre, post) = wrappedIn (expect1 pre, expect1 post)
 
-inBrackets = wrapedIn ('[', ']')
+separatedBy :: Parser s -> Parser x -> Parser [x]
+separatedBy s pa = pure (:) <*> pa <*> many (s *> pa)
 
-inCurlyBrackets = wrapedIn ('{', '}')
+separatedByChar :: Char -> Parser x -> Parser [x]
+separatedByChar c = separatedBy (expect1 c)
 
-separatedBy :: Char -> Parser x -> Parser [x]
-separatedBy c pa = pure (:) <*> pa <*> many (expect1 c *> pa)
+whitespace = asum (expect1 <$> " \n\t\r")
+
+whitespaces = many whitespace
+
+inParens = wrappedInChar ('(', ')')
+
+inBrackets = wrappedInChar ('[', ']')
+
+inCurlyBrackets = wrappedInChar ('{', '}')
+
+inWhitespaces = wrappedIn (whitespaces, whitespaces)

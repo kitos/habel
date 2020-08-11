@@ -37,12 +37,15 @@ parseIdTail = parse1 (\c -> case c `elem` validIdChars of
 parseId :: Parser Identifier
 parseId = (\s0 s -> Identifier (s0:s)) <$> parseIdStart <*> (many parseIdTail)
 
+separatedByCharWithSpaces = separatedBy . inWhitespaces . expect1
+
 parseFunctionDeclaration :: Parser Statement
 parseFunctionDeclaration = expect "function" >>
-    expect1 ' ' >>
+    whitespaces >>
     parseId >>= \n ->
-    inParens (separatedBy ',' parseId) >>= \args ->
-    expect1 ' ' >>
+    whitespaces >>
+    inParens (separatedByCharWithSpaces ',' parseId) >>= \args ->
+    whitespaces >>
     inCurlyBrackets (many parseStatement) >>= \ss ->
     return (FunctionDeclaration n args ss)
 
@@ -55,15 +58,16 @@ parseVarType = asum [
 
 parseVarDeclaration :: Parser Statement
 parseVarDeclaration = parseVarType >>= \t ->
-    expect1 ' ' >>
+    whitespaces >>
     parseId >>= \n ->
-    expect " = " >>
+    (inWhitespaces . expect1 $ '=') >>
     parseExpression >>= \e ->
     return (VarDeclaration t n e)
 
 parseFunctionCall :: Parser Expression
 parseFunctionCall = parseId >>= \n ->
-    inParens (separatedBy ',' parseExpression) >>= \args ->
+    whitespaces >>
+    (inParens . inWhitespaces . separatedByCharWithSpaces ',' $ parseExpression) >>= \args ->
     return (FunctionCall n args)
 
 parseExpression :: Parser Expression
@@ -78,4 +82,4 @@ parseStatement = asum [
     parseExpressionStatement]
 
 parseProgram :: Parser Program
-parseProgram = Program <$> many parseStatement
+parseProgram = Program <$> many (inWhitespaces parseStatement)
