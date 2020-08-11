@@ -9,13 +9,20 @@ parse1 :: (Char -> Either String x) -> Parser x
 parse1 f = Parser (\case
     []    -> Left (0, "Not enough input :(")
     (c:s) -> case f c of
-        Left m  -> Left (0, m)
+        Left m  -> Left (1, m)
         Right x -> Right (1, s, x))
 
 expect1 :: Char -> Parser Char
 expect1 x = parse1 (\c -> if
     | c == x    -> Right c
     | otherwise -> Left ("Expected " <> show x <> ", got " <> show c <> " :("))
+
+notExpect1 :: Char -> Parser Char
+notExpect1 x = parse1 (\c -> if
+    | c /= x    -> Right c
+    | otherwise -> Left ("Didn't expect to  get " <> show c <> " :("))
+
+parseUntilChar = many . notExpect1
 
 expect :: String -> Parser String
 expect = sequence . fmap expect1

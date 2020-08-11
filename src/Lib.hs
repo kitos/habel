@@ -9,7 +9,11 @@ import Core
 data Identifier = Identifier String
     deriving (Show)
 
-data Expression = FunctionCall Identifier [Expression]
+data Expression =
+    StringLiteral String
+    | NumericLiteral Double
+    | BoolLiteral Bool
+    | FunctionCall Identifier [Expression]
     | Id Identifier
     deriving (Show)
 
@@ -23,8 +27,26 @@ data Statement =
 
 data Program = Program [Statement] deriving (Show)
 
+parseSingleQuoteString = expect1 '\'' *> parseUntilChar '\'' <* expect1 '\''
+
+parseDoubleQuoteString = expect1 '"' *> parseUntilChar '"' <* expect1 '"'
+
+parseStringLiteral = StringLiteral <$> (parseSingleQuoteString <|> parseDoubleQuoteString)
+
+digits = ['0'..'9']
+
+parseDigit = parse1 (\c -> case c `elem` digits of
+    True  -> Right c
+    False -> Left ("Expected '0'..'9', got" <> show c <> " :("))
+
+parseNumericLiteral = NumericLiteral . read <$> some parseDigit
+
+parseBool = (const True <$> expect "true") <|> (const False <$> expect "false")
+
+parseBoolLiteral = BoolLiteral <$> parseBool
+
 validIdStartChars = "_" ++ ['a'..'z'] ++ ['A'..'Z']
-validIdChars = validIdStartChars ++ ['0'..'9']
+validIdChars = validIdStartChars ++ digits
 
 parseIdStart = parse1 (\c -> case c `elem` validIdStartChars of
     True  -> Right c
@@ -32,7 +54,7 @@ parseIdStart = parse1 (\c -> case c `elem` validIdStartChars of
 
 parseIdTail = parse1 (\c -> case c `elem` validIdChars of
     True  -> Right c
-    False -> Left ("Using " <> show c <> " in identifier is not allowed"))
+    False -> Left ("Using " <> show c <> " in identifier is not allowed :("))
 
 parseId :: Parser Identifier
 parseId = (\s0 s -> Identifier (s0:s)) <$> parseIdStart <*> (many parseIdTail)
@@ -71,7 +93,12 @@ parseFunctionCall = parseId >>= \n ->
     return (FunctionCall n args)
 
 parseExpression :: Parser Expression
-parseExpression = asum [parseFunctionCall, Id <$> parseId]
+parseExpression = asum [
+    parseBoolLiteral,
+    parseNumericLiteral,
+    parseStringLiteral,
+    parseFunctionCall,
+    Id <$> parseId]
 
 parseExpressionStatement :: Parser Statement
 parseExpressionStatement = ExpressionStatement <$> parseExpression
