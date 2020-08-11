@@ -2,17 +2,26 @@
 module Lib where
 
 import Control.Applicative
+import Data.Foldable
 import Parser
 import Core
 
 data Identifier = Identifier String
     deriving (Show)
 
-data FunctionDef = FunctionDef Identifier [Identifier] -- [Expr]
+data Expression = FunctionCall Identifier [Expression]
+    | Id Identifier
     deriving (Show)
 
-data Expr = FunctionCall Identifier [Expr]
+data VarType = Var | Let | VConst deriving (Show)
+
+data Statement =
+      VarDeclaration VarType Identifier Expression
+    | FunctionDeclaration Identifier [Identifier] [Statement]
+    | ExpressionStatement Expression
     deriving (Show)
+
+data Program = Program [Statement] deriving (Show)
 
 validIdStartChars = "_" ++ ['a'..'z'] ++ ['A'..'Z']
 validIdChars = validIdStartChars ++ ['0'..'9']
@@ -28,11 +37,45 @@ parseIdTail = parse1 (\c -> case c `elem` validIdChars of
 parseId :: Parser Identifier
 parseId = (\s0 s -> Identifier (s0:s)) <$> parseIdStart <*> (many parseIdTail)
 
-parseFunctionDef :: Parser FunctionDef
-parseFunctionDef = expect "function" >>
+parseFunctionDeclaration :: Parser Statement
+parseFunctionDeclaration = expect "function" >>
     expect1 ' ' >>
     parseId >>= \n ->
     inParens (separatedBy ',' parseId) >>= \args ->
     expect1 ' ' >>
-    inCurlyBrackets (expect1 ' ') >>
-    return (FunctionDef n args)
+    inCurlyBrackets (many parseStatement) >>= \ss ->
+    return (FunctionDeclaration n args ss)
+
+parseVarType :: Parser VarType
+parseVarType = asum [
+    const Let   <$> expect "let",
+    const VConst <$> expect "const",
+    const Var   <$> expect "var"
+    ]
+
+parseVarDeclaration :: Parser Statement
+parseVarDeclaration = parseVarType >>= \t ->
+    expect1 ' ' >>
+    parseId >>= \n ->
+    expect " = " >>
+    parseExpression >>= \e ->
+    return (VarDeclaration t n e)
+
+parseFunctionCall :: Parser Expression
+parseFunctionCall = parseId >>= \n ->
+    inParens (separatedBy ',' parseExpression) >>= \args ->
+    return (FunctionCall n args)
+
+parseExpression :: Parser Expression
+parseExpression = asum [parseFunctionCall, Id <$> parseId]
+
+parseExpressionStatement :: Parser Statement
+parseExpressionStatement = ExpressionStatement <$> parseExpression
+
+parseStatement = asum [
+    parseVarDeclaration,
+    parseFunctionDeclaration,
+    parseExpressionStatement]
+
+parseProgram :: Parser Program
+parseProgram = Program <$> many parseStatement
