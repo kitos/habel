@@ -2,6 +2,9 @@ function cha(a, b) {
   var some = 42
 }
 
-let c = cha('hello', "world", true)
+const arr = [123]
 
-const d = [123]
+let obj = {
+  a: 1,
+  b: cha('hello', "world", true)
+}

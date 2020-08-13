@@ -13,7 +13,8 @@ data Expression =
     StringLiteral String
     | NumericLiteral Double
     | BoolLiteral Bool
-    | Array [Expression]
+    | ArrayLiteral [Expression]
+    | ObjectLiteral [(Identifier, Expression)]
     | FunctionCall Identifier [Expression]
     | Id Identifier
     deriving (Show)
@@ -62,8 +63,18 @@ parseId = (\s0 s -> Identifier (s0:s)) <$> parseIdStart <*> (many parseIdTail)
 
 separatedByCharWithSpaces = separatedBy . inWhitespaces . expect1
 
-parseArray :: Parser Expression
-parseArray = Array <$> inBrackets (separatedByCharWithSpaces ',' parseExpression)
+parseArrayLiteral :: Parser Expression
+parseArrayLiteral = ArrayLiteral <$> inBrackets (separatedByCharWithSpaces ',' parseExpression)
+
+parseObjectProperty :: Parser (Identifier, Expression)
+parseObjectProperty = parseId >>= \i ->
+    inWhitespaces (expect1 ':') >>
+    parseExpression >>= \e ->
+    return (i, e)
+
+parseObjectLiteral :: Parser Expression
+parseObjectLiteral = ObjectLiteral <$> (
+    inCurlyBrackets . inWhitespaces . separatedByCharWithSpaces ',' $ parseObjectProperty)
 
 parseFunctionDeclaration :: Parser Statement
 parseFunctionDeclaration = expect "function" >>
@@ -101,7 +112,8 @@ parseExpression = asum [
     parseBoolLiteral,
     parseNumericLiteral,
     parseStringLiteral,
-    parseArray,
+    parseArrayLiteral,
+    parseObjectLiteral,
     parseFunctionCall,
     Id <$> parseId]
 
