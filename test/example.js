@@ -6,5 +6,7 @@ const arr = [123]
 
 let obj = {
   a: 1,
-  b: cha('hello', "world", true)
+  b: cha
 }
+
+cha('hello', ((("world"))), true)
