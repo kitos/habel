@@ -4,4 +4,4 @@ function cha(a, b) {
 
 let c = cha('hello', "world", true)
 
-const d = 123
+const d = [123]
