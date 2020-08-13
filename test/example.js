@@ -1,4 +1,6 @@
-function cha(a, b) {}
+function cha(a, b) {
+  var some = 42
+}
 
 let c = cha('hello', "world", true)
 

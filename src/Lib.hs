@@ -68,7 +68,7 @@ parseFunctionDeclaration = expect "function" >>
     whitespaces >>
     inParens (separatedByCharWithSpaces ',' parseId) >>= \args ->
     whitespaces >>
-    inCurlyBrackets (many parseStatement) >>= \ss ->
+    (inCurlyBrackets . many . inWhitespaces $ parseStatement) >>= \ss ->
     return (FunctionDeclaration n args ss)
 
 parseVarType :: Parser VarType
