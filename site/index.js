@@ -24,7 +24,7 @@ let init = async () => {
     lineNumbers: true,
   })
 
-  editor.on('change', async (doc) => {
+  editor.on('changes', async (doc) => {
     $ast.textContent = await parseSrc(doc.getValue())
   })
 
