@@ -10,6 +10,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - uses: satackey/action-docker-layer-caching@v0.0.8
       - uses: actions/setup-node@v2-beta
         with:
           node-version: '12'
@@ -25,4 +26,4 @@ jobs:
           cp ../src/js-exports.wasm ./dist/
 
       - name: Deploy
-        run: node_modules/.bin/gh-pages -d dist --user "Nikita Kirsanov <kitos.kirsanov@gmail.com>" --repo https://${{ secrets.GH_TOKEN }}@github.com/kitos/habel.git
+        run: node_modules/.bin/gh-pages -d ./site/dist --user "Nikita Kirsanov <kitos.kirsanov@gmail.com>" --repo https://${{ secrets.GH_TOKEN }}@github.com/kitos/habel.git
