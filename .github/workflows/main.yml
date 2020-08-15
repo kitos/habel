@@ -22,7 +22,7 @@ jobs:
           cd site
           npm ci
           npm run build
-          cp ../src/js-exports.wasm /dist
+          cp ../src/js-exports.wasm ./dist/
 
       - name: Deploy
         run: node_modules/.bin/gh-pages -d dist --user "Nikita Kirsanov <kitos.kirsanov@gmail.com>" --repo https://${{ secrets.GH_TOKEN }}@github.com/kitos/habel.git
