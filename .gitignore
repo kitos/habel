@@ -1,6 +1,10 @@
 .stack-work/
 *~
 
+node_modules/
+.cache/
+dist/
+
 # asterius build
 src/browser
 src/js-exports.*
