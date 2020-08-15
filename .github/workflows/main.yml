@@ -1,0 +1,15 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Compile Haskell to Wasm
+      run: docker run --rm -v $(pwd):/project -w /project terrorjack/asterius ahc-link --input-hs src/JsExports.hs --no-main --browser --export-function parseSrc
