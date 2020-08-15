@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 8033858c0516037e273ee4a7e93ea73fde4801eeceab1b7f47ec6016dc9df29d
+-- hash: 1b1238b7037282ef63cde4fb2c2cdaf3b15307208e35da731dc703f98dc9c049
 
 name:           habel
 version:        0.1.0.0
@@ -28,6 +28,7 @@ source-repository head
 library
   exposed-modules:
       Core
+      JsExports
       Lib
       Parser
   other-modules:
