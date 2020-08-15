@@ -15,7 +15,6 @@ let init = async () => {
 
   hs_init()
 
-  let $ast = document.getElementById('ast')
   let editor = CodeMirror.fromTextArea(document.getElementById('src'), {
     mode: {
       name: 'javascript',
@@ -25,7 +24,7 @@ let init = async () => {
   })
 
   editor.on('changes', async (doc) => {
-    $ast.textContent = await parseSrc(doc.getValue())
+    document.getElementById('ast').textContent = await parseSrc(doc.getValue())
   })
 
   editor.setValue(`function cha(a, b) {
