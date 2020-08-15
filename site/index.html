@@ -39,11 +39,11 @@
         margin-bottom: 8px;
       }
 
-      #src {
+      .src {
         grid-area: src;
       }
 
-      #src,
+      .src,
       #ast {
         padding: 8px;
         margin: 8px;
@@ -79,7 +79,9 @@
       </p>
     </header>
 
-    <textarea id="src"></textarea>
+    <div class="src">
+      <textarea id="src"></textarea>
+    </div>
     <code id="ast"></code>
 
     <a
