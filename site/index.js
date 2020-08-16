@@ -12,7 +12,7 @@ let init = async () => {
   let wasmModule = await WebAssembly.compileStreaming(fetch('js-exports.wasm'))
   let {
     exports: { hs_init, parseSrc },
-  } = await rts.newAsteriusInstance(Object.assign(req, { module: wasmModule }))
+  } = await rts.newAsteriusInstance({ ...req, module: wasmModule })
 
   hs_init()
 
