@@ -1,4 +1,5 @@
 import 'regenerator-runtime/runtime'
+import preval from 'preval.macro'
 
 import * as rts from '../src/rts.mjs'
 import req from '../src/js-exports.req.mjs'
@@ -27,18 +28,9 @@ let init = async () => {
     document.getElementById('ast').textContent = await parseSrc(doc.getValue())
   })
 
-  editor.setValue(`function cha(a, b) {
-  var some = 42
-}
-
-const arr = [123]
-
-let obj = {
-  a: 1,
-  b: cha
-}
-
-cha('hello', ((("world"))), true)`)
+  editor.setValue(
+    preval`module.exports = require('fs').readFileSync('../test/example.js').toString()`
+  )
 }
 
 init()
