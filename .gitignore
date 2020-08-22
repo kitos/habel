@@ -8,7 +8,7 @@ dist/
 # asterius build
 src/browser
 src/js-exports.*
-src/*.o
-src/*.hi
+src/**/*.o
+src/**/*.hi
 src/rts.mjs
 src/rts.*.mjs

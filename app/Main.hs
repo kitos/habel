@@ -1,3 +1,6 @@
 module Main where
 
-main = interact $ show
+import Parser.Parser
+import Lib
+
+main = interact (show . runParser parseProgram)

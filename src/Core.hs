@@ -3,7 +3,7 @@ module Core where
 
 import Control.Applicative
 import Data.Foldable
-import Parser
+import Parser.Parser
 
 parse1 :: (Char -> Either String x) -> Parser x
 parse1 f = Parser (\case

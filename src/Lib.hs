@@ -3,31 +3,9 @@ module Lib where
 
 import Control.Applicative
 import Data.Foldable
-import Parser
+import Parser.Parser
+import Parser.Ast
 import Core
-
-data Identifier = Identifier String
-    deriving (Show)
-
-data Expression =
-    StringLiteral String
-    | NumericLiteral Double
-    | BoolLiteral Bool
-    | ArrayLiteral [Expression]
-    | ObjectLiteral [(Identifier, Expression)]
-    | FunctionCall Identifier [Expression]
-    | Id Identifier
-    deriving (Show)
-
-data VarType = Var | Let | VConst deriving (Show)
-
-data Statement =
-      VarDeclaration VarType Identifier Expression
-    | FunctionDeclaration Identifier [Identifier] [Statement]
-    | ExpressionStatement Expression
-    deriving (Show)
-
-data Program = Program [Statement] deriving (Show)
 
 parseSingleQuoteString = expect1 '\'' *> parseUntilChar '\'' <* expect1 '\''
 
@@ -66,11 +44,11 @@ separatedByCharWithSpaces = separatedBy . inWhitespaces . expect1
 parseArrayLiteral :: Parser Expression
 parseArrayLiteral = ArrayLiteral <$> inBrackets (separatedByCharWithSpaces ',' parseExpression)
 
-parseObjectProperty :: Parser (Identifier, Expression)
+parseObjectProperty :: Parser ObjectProperty
 parseObjectProperty = parseId >>= \i ->
     inWhitespaces (expect1 ':') >>
     parseExpression >>= \e ->
-    return (i, e)
+    return (ObjectProperty i e)
 
 parseObjectLiteral :: Parser Expression
 parseObjectLiteral = ObjectLiteral <$> (

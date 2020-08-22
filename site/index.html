@@ -44,14 +44,14 @@
       }
 
       .src,
-      #ast {
+      .ast {
         padding: 8px;
         margin: 8px;
         border: 1px solid gray;
         border-radius: 2px;
       }
 
-      #ast {
+      .ast {
         grid-area: ast;
       }
     </style>
@@ -82,7 +82,9 @@
     <div class="src">
       <textarea id="src"></textarea>
     </div>
-    <code id="ast"></code>
+    <div class="ast">
+      <json-viewer id="ast"></json-viewer>
+    </div>
 
     <a
       href="https://github.com/kitos/habel"

@@ -7,6 +7,7 @@ import req from '../src/js-exports.req.mjs'
 import CodeMirror from 'codemirror'
 import 'codemirror/mode/javascript/javascript'
 import 'codemirror/lib/codemirror.css'
+import '@alenaksu/json-viewer'
 
 let init = async () => {
   let wasmModule = await WebAssembly.compileStreaming(fetch('js-exports.wasm'))
@@ -25,7 +26,9 @@ let init = async () => {
   })
 
   editor.on('changes', async (doc) => {
-    document.getElementById('ast').textContent = await parseSrc(doc.getValue())
+    document.getElementById('ast').data = JSON.parse(
+      await parseSrc(doc.getValue())
+    )
   })
 
   editor.setValue(

@@ -1,5 +1,5 @@
 {-# LANGUAGE BangPatterns #-}
-module Parser where
+module Parser.Parser where
 
 import Control.Applicative
 
