@@ -5,7 +5,7 @@ import Control.Applicative
 import Data.Foldable
 import Parser.Parser
 import Parser.Ast
-import Core
+import Parser.Core
 
 parseSingleQuoteString = expect1 '\'' *> parseUntilChar '\'' <* expect1 '\''
 
@@ -93,7 +93,8 @@ parseExpression = asum [
     parseArrayLiteral,
     parseObjectLiteral,
     parseFunctionCall,
-    Id <$> parseId]
+    Id <$> parseId,
+    inParens parseExpression]
 
 parseExpressionStatement :: Parser Statement
 parseExpressionStatement = ExpressionStatement <$> parseExpression

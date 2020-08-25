@@ -2,6 +2,7 @@
 module Parser.Ast where
 
 import Data.List
+import Data.Bool
 
 data Identifier = Identifier String
 
@@ -37,7 +38,7 @@ instance Show Expression where
       ("value", show v)]
     (BoolLiteral v) -> [
       ("type", show "BoolLiteral"),
-      ("value", show v)]
+      ("value", bool "false" "true" v)]
     (ArrayLiteral v) -> [
       ("type", show "ArrayLiteral"),
       ("elements", show v)]

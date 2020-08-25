@@ -1,5 +1,5 @@
 {-# LANGUAGE LambdaCase, MultiWayIf #-}
-module Core where
+module Parser.Core where
 
 import Control.Applicative
 import Data.Foldable
