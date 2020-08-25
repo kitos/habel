@@ -6,38 +6,10 @@ import Data.Foldable
 import Parser.Parser
 import Parser.Ast
 import Parser.Core
-
-parseSingleQuoteString = expect1 '\'' *> parseUntilChar '\'' <* expect1 '\''
-
-parseDoubleQuoteString = expect1 '"' *> parseUntilChar '"' <* expect1 '"'
-
-parseStringLiteral = StringLiteral <$> (parseSingleQuoteString <|> parseDoubleQuoteString)
-
-digits = ['0'..'9']
-
-parseDigit = parse1 (\c -> case c `elem` digits of
-    True  -> Right c
-    False -> Left ("Expected '0'..'9', got" <> show c <> " :("))
-
-parseNumericLiteral = NumericLiteral . read <$> some parseDigit
-
-parseBool = (const True <$> expect "true") <|> (const False <$> expect "false")
-
-parseBoolLiteral = BoolLiteral <$> parseBool
-
-validIdStartChars = "_" ++ ['a'..'z'] ++ ['A'..'Z']
-validIdChars = validIdStartChars ++ digits
-
-parseIdStart = parse1 (\c -> case c `elem` validIdStartChars of
-    True  -> Right c
-    False -> Left "Expected identifier to start with '_' or 'a'..'z' :(")
-
-parseIdTail = parse1 (\c -> case c `elem` validIdChars of
-    True  -> Right c
-    False -> Left ("Using " <> show c <> " in identifier is not allowed :("))
-
-parseId :: Parser Identifier
-parseId = (\s0 s -> Identifier (s0:s)) <$> parseIdStart <*> (many parseIdTail)
+import Parser.StringLiteral
+import Parser.NumericLiteral
+import Parser.BoolLiteral
+import Parser.Identifier
 
 separatedByCharWithSpaces = separatedBy . inWhitespaces . expect1
 
